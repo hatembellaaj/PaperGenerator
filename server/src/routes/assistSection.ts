@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { openai, assertEnv } from '../openaiClient.js';
+import { openai, assistantId, assertEnv } from '../openaiClient.js';
 import { AssistRequestBody, AssistResponse } from '../types.js';
 
 const router = Router();
@@ -20,7 +20,6 @@ router.post('/assist-section', async (req, res) => {
       .map((s) => `${s.label}: ${s.content.substring(0, 200)}...`)
       .join('\n');
 
-    // Option A: Assistants API using a stateless prompt (preferred). Replace ASSISTANT_ID with your real ID.
     const prompt = `You are helping write a scientific paper about LLMs.\n` +
       `Paper title: ${paperTitle}\n` +
       `Section: ${sectionLabel} (${sectionId})\n` +
@@ -29,21 +28,28 @@ router.post('/assist-section', async (req, res) => {
       `Other sections (summary): ${otherSectionsSummary || 'N/A'}\n` +
       `Return only the updated text for this section.`;
 
-    // Using chat completions for simplicity. Swap to client.responses.create with Assistants API if desired.
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-mini', // Replace with your preferred model
+    const thread = await openai.beta.threads.create({
       messages: [
         {
-          role: 'system',
-          content:
-            'You assist with drafting sections of a scientific paper about LLMs. Keep responses focused on the requested section.',
+          role: 'user',
+          content: prompt,
         },
-        { role: 'user', content: prompt },
       ],
+    });
+
+    const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
+      assistant_id: assistantId!,
       temperature: mode === 'summarize' ? 0.2 : 0.5,
     });
 
-    const content = completion.choices[0]?.message?.content || 'No content generated.';
+    if (run.status !== 'completed') {
+      throw new Error(`Assistant run did not complete (status: ${run.status}).`);
+    }
+
+    const messages = await openai.beta.threads.messages.list(thread.id, { order: 'desc', limit: 1 });
+    const message = messages.data[0];
+    const textContent = message?.content.find((item) => item.type === 'text');
+    const content = textContent?.type === 'text' ? textContent.text.value : 'No content generated.';
 
     const response: AssistResponse = {
       assistantMessage: { content },

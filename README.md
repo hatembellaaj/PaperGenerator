@@ -31,12 +31,12 @@ Create `server/.env` based on the example:
 
 ```
 OPENAI_API_KEY=your_key_here
-ASSISTANT_ID=your_assistant_id_here
+OPENAI_ASSISTANT_ID=your_assistant_id_here
 PORT=3000
 ```
 
 - `OPENAI_API_KEY` is required for API calls.
-- `ASSISTANT_ID` is used if switching to the Assistants API flow.
+- `OPENAI_ASSISTANT_ID` is required for the Assistants API flow.
 
 ## Running the App
 
@@ -62,7 +62,7 @@ Build and run both services with Docker Compose (frontend on port **9550**, back
 
 ```bash
 docker compose build
-OPENAI_API_KEY=your_key_here docker compose up
+OPENAI_API_KEY=your_key_here OPENAI_ASSISTANT_ID=your_assistant_id_here docker compose up
 ```
 
 - The frontend is available at http://localhost:9550
@@ -95,4 +95,4 @@ Response body:
 }
 ```
 
-The server currently uses the Chat Completions API with `gpt-4.1-mini` by default and can be adapted to the Assistants API.
+The server uses the Assistants API; set both `OPENAI_API_KEY` and `OPENAI_ASSISTANT_ID` in your environment.
