@@ -56,6 +56,19 @@ npm run dev
 
 The frontend proxies `/api` requests to the backend.
 
+## Running with Docker
+
+Build and run both services with Docker Compose (frontend on port **9550**, backend on port **9551**):
+
+```bash
+docker compose build
+OPENAI_API_KEY=your_key_here docker compose up
+```
+
+- The frontend is available at http://localhost:9550
+- The API is available at http://localhost:9551/api
+- Override ports by editing `docker-compose.yml` (keep them between 9550 and 9560).
+
 ## API Endpoint
 
 `POST /api/assist-section`
