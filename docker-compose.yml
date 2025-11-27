@@ -6,7 +6,7 @@ services:
       context: ./server
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ASSISTANT_ID=${ASSISTANT_ID:-}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID:-}
       - PORT=9551
     ports:
       - "9551:9551"
