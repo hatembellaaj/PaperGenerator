@@ -7,6 +7,7 @@ RUN npm install && npm cache clean --force
 
 COPY tsconfig.json ./
 COPY vite.config.ts ./
+COPY index.html ./
 COPY src ./src
 COPY public ./public
 
